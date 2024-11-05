@@ -3,14 +3,14 @@
 
 ### Why CodeSearchNet?
 
-For gathering training data, we chose to use the CodeSearchNet dataset rather than scraping GitHub directly. This saved us considerable preprocessing effort - CodeSearchNet provides clean, well-documented Python functions right out of the box. No need to deal with parsing raw files or filtering out low-quality code.
+For gathering training data, I chose to use the CodeSearchNet dataset rather than scraping GitHub directly. This saved us considerable preprocessing effort - CodeSearchNet provides clean, well-documented Python functions right out of the box. No need to deal with parsing raw files or filtering out low-quality code.
 
-We also went with T5-small as our base model. While CodeT5+ or CodeBERT might seem like more obvious choices for a code-related task, we found T5-small offered a good balance of performance and practicality. It's lightweight enough to train on limited compute resources but still powerful enough for our needs.
+I also went with T5-small as our base model. While CodeT5+ or CodeBERT might seem like more obvious choices for a code-related task, I found T5-small offered a good balance of performance and practicality. It's lightweight enough to train on limited compute resources but still powerful enough for our needs.
 
 ### 1. Dataset Construction
 
 #### 1.1 Data Source
-We utilized the CodeSearchNet dataset, which consists of 14 training files, 1 validation file, and 1 test file in JSONL.GZ format. The dataset was chosen for its:
+I utilized the CodeSearchNet dataset, which consists of 14 training files, 1 validation file, and 1 test file in JSONL.GZ format. The dataset was chosen for its:
 - High-quality Python function collection
 - Pre-processed code structure
 - Built-in train/validation/test split
@@ -19,7 +19,7 @@ We utilized the CodeSearchNet dataset, which consists of 14 training files, 1 va
 #### 1.2 Data Processing Pipeline
 Our data processing workflow consisted of:
 
-1. First, we loaded the compressed files into pandas DataFrames:
+1. First, I loaded the compressed files into pandas DataFrames:
 ```python
 def jsonl_list_to_dataframe(file_list, columns):
     return pd.concat([pd.read_json(f, 
@@ -35,7 +35,7 @@ def filter_if_statements(df):
     return df[df['code'].str.contains(r'\bif\b')]
 ```
 
-Following the assignment requirements, we split the data into:
+Following the assignment requirements, I split the data into:
 - Pre-training: 150,000 samples
 - Fine-tuning total: 50,000 samples
   * Training: 40,000 samples (80%)
@@ -45,7 +45,7 @@ Following the assignment requirements, we split the data into:
 ### 2. Model Architecture and Training
 
 #### 2.1 Model Selection
-We implemented our solution using the T5-small model architecture:
+I implemented our solution using the T5-small model architecture:
 - Base model: t5-small from HuggingFace
 - Tokenizer: T5Tokenizer with max_length=512
 - Special tokens: Used `<extra_id_0>` for masking
@@ -74,16 +74,16 @@ We implemented our solution using the T5-small model architecture:
 
 #### 2.3 Masked Language Modeling Strategy
 
-For pre-training, we implemented Masked Language Modeling (MLM) as our key learning approach. Here's why and how:
+For pre-training, I implemented Masked Language Modeling (MLM) as our key learning approach. Here's why and how:
 
 1. **Basic Concept**:
-   - We randomly mask 15% of tokens in each code snippet
+   - I randomly mask 15% of tokens in each code snippet
    - The model learns to predict these masked tokens
    - This forces it to understand code context and structure
 
 2. **Implementation Details**:
 ```python
-# During training, we mask tokens randomly
+# During training, I mask tokens randomly
 mask_idx = torch.rand(input_ids.shape).to(input_ids.device) < 0.15  
 input_ids[mask_idx] = mask_token_id
 
@@ -130,7 +130,7 @@ class CodeDataset(Dataset):
   * Generate syntactically correct code
 
 #### 3.3 Result Generation
-For evaluation, we built a test harness that generates CSV files with model predictions:
+For evaluation, I built a test harness that generates CSV files with model predictions:
 ```python
 def generate_testset_csv(test_data, input_col, target_col, csv_filename):
     # Generates CSV with:
